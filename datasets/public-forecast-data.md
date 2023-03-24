@@ -1,6 +1,6 @@
 # Publicly available datasets
 
-## [1] FastFresh synthetic dataset
+## FastFresh synthetic dataset
 * used in tutorial: [Build and visualize demand forecast predictions using Datastream, Dataflow, BigQuery ML, and Looker](https://cloud.google.com/architecture/build-visualize-demand-forecast-prediction-datastream-dataflow-bigqueryml-looker)
 * tutorial intended for data engineers and analysts who want to use their operational data
 * fictitious retail store named FastFresh to help demonstrate selling fresh produce
@@ -8,7 +8,7 @@
 > * minimize food waste 
 > * optimize stock levels across all stores
 
-## [2] Google Analytics 4 ecommerce web implementation
+## Google Analytics 4 ecommerce web implementation
 * BigQuery Public Datasets program
 * Google Merchandise Store selling Google-branded merchandise. 
 * site uses Google Analytics 4's standard web ecommerce implementation along with enhanced measurement 
@@ -16,10 +16,13 @@
 
 ### EDA example code
 
-#### get the data
+**get the data**
 
+```sql
+TODO
+```
 
-#### unique events, users, and days in the dataset
+**unique events, users, and days** in the dataset
 
 ```sql
 SELECT
@@ -30,7 +33,7 @@ FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`
 ```
 
 
-### [3] Retail demand dataset
+### Retail demand dataset
 * data covers 10 US stores 
 * feature set includes
 > * item level, 
@@ -44,5 +47,6 @@ FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`
 SELECT * FROM looker-private-demo.retail.transaction_detail
 ```
 
-### [4] NYC Bike Trips
+### NYC Bike Trips
+* BigQuery Public Dataset program
 * EDA and data prep [guide](https://github.com/statmike/vertex-ai-mlops/blob/main/Applied%20Forecasting/1%20-%20BigQuery%20Time%20Series%20Forecasting%20Data%20Review%20and%20Preparation.ipynb) from a trusted friend, @statmike !!
