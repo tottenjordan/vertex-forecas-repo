@@ -94,7 +94,8 @@ gcloud projects add-iam-policy-binding ${PROJECT_ID} --member=serviceAccount:${P
 
 ## Replicate Oracle data to Google Cloud with Datastream
 
-### TODO
+#### TODO
+* see instructions [here](https://cloud.google.com/architecture/build-visualize-demand-forecast-prediction-datastream-dataflow-bigqueryml-looker#replicate-oracle-data-to-google-cloud-with-datastream)
 
 ## Create a Dataflow job using the Datastream to BigQuery template
 
@@ -209,6 +210,18 @@ gcloud datastream streams list \
 --location=us-central1
 ```
 
-> Validate that the state shows as `Running`. It may take a few seconds for the new state value to be reflected.
+Things to check
+* Validate that the state shows as `Running` (may take a few seconds for the new state value to be reflected)
+* Check the Datastream console to validate the progress of the ORDERS table backfill
 
-> Check the Datastream console to validate the progress of the ORDERS table backfill.
+Because this task is an initial load, Datastream reads from the `ORDERS` object
+* writes all records to the JSON files located in the Cloud Storage bucket that you specified during the stream creation
+* It will take about **~10 minutes for the backfill task to complete**
+
+## Analyze your data in BigQuery
+
+After a few minutes, your backfilled data replicates into BigQuery. Any new incoming data is streamed into your datasets in (near) real time. Each record is processed by the UDF logic that you defined as part of the Dataflow template
+
+The following two new tables in the datasets are created by the Dataflow job
+* `ORDERS`: This output table is a replica of the Oracle table and includes the transformations applied to the data as part of the Dataflow template
+* `ORDERS_log`: This staging table records all the changes from your Oracle source. The table is partitioned, and stores the updated record alongside some metadata change information, such as whether the change is an update, insert, or delete
