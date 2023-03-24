@@ -96,7 +96,119 @@ gcloud projects add-iam-policy-binding ${PROJECT_ID} --member=serviceAccount:${P
 
 ### TODO
 
+## Create a Dataflow job using the Datastream to BigQuery template
+
+1. copy and save the following code to a file named `retail_transform.js`
+
+```js
+function process(inJson) {
+
+   var obj = JSON.parse(inJson),
+   includePubsubMessage = obj.data && obj.attributes,
+   data = includePubsubMessage ? obj.data : obj;
+
+   data.PAYMENT_METHOD = data.PAYMENT_METHOD.split(':')[0].concat("XXX");
+
+   data.ORACLE_SOURCE = data._metadata_schema.concat('.', data._metadata_table);
+
+   return JSON.stringify(obj);
+}
+```
+2. upload the JavaScript file to the newly created bucket
+
 ```bash
-XXX
+gsutil mb gs://js-${BUCKET_NAME}
+
+gsutil cp retail_transform.js \
+gs://js-${BUCKET_NAME}/utils/retail_transform.js
 ```
 
+### Create a Dataflow job
+
+```bash
+gsutil mb gs://dlq-${BUCKET_NAME}
+```
+
+2. Create a service account for the Dataflow execution
+
+```bash
+gcloud iam service-accounts create df-tutorial
+
+gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+--member="serviceAccount:df-tutorial@${PROJECT_ID}.iam.gserviceaccount.com" \
+--role="roles/dataflow.admin"
+
+gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+--member="serviceAccount:df-tutorial@${PROJECT_ID}.iam.gserviceaccount.com" \
+--role="roles/dataflow.worker"
+
+gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+--member="serviceAccount:df-tutorial@${PROJECT_ID}.iam.gserviceaccount.com" \
+--role="roles/pubsub.admin"
+
+gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+--member="serviceAccount:df-tutorial@${PROJECT_ID}.iam.gserviceaccount.com" \
+--role="roles/bigquery.dataEditor"
+
+gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+--member="serviceAccount:df-tutorial@${PROJECT_ID}.iam.gserviceaccount.com" \
+--role="roles/bigquery.jobUser"
+
+gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+--member="serviceAccount:df-tutorial@${PROJECT_ID}.iam.gserviceaccount.com" \
+--role="roles/datastream.admin"
+
+gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+--member="serviceAccount:df-tutorial@${PROJECT_ID}.iam.gserviceaccount.com" \
+--role="roles/storage.admin"
+```
+3. Create a firewall egress rule to let Dataflow VMs communicate, send, and receive network traffic on TCP ports 12345 and 12346 when autoscale is enabled
+
+```bash
+gcloud compute firewall-rules create fw-allow-inter-dataflow-comm \
+--action=allow \
+--direction=ingress \
+--network=$GCP_NETWORK_NAME  \
+--target-tags=dataflow \
+--source-tags=dataflow \
+--priority=0 \
+--rules tcp:12345-12346
+```
+4. Create and run a Dataflow job:
+
+```bash
+export REGION=us-central1
+gcloud dataflow flex-template run orders-cdc-template --region ${REGION} \
+--template-file-gcs-location "gs://dataflow-templates/latest/flex/Cloud_Datastream_to_BigQuery" \
+--service-account-email "df-tutorial@${PROJECT_ID}.iam.gserviceaccount.com" \
+--parameters \
+inputFilePattern="gs://${BUCKET_NAME}/",\
+gcsPubSubSubscription="projects/${PROJECT_ID}/subscriptions/oracle_retail_sub",\
+inputFileFormat="json",\
+outputStagingDatasetTemplate="retail",\
+outputDatasetTemplate="retail",\
+deadLetterQueueDirectory="gs://dlq-${BUCKET_NAME}",\
+autoscalingAlgorithm="THROUGHPUT_BASED",\
+mergeFrequencyMinutes=1,\
+javascriptTextTransformGcsPath="gs://js-${BUCKET_NAME}/utils/retail_transform.js",\
+javascriptTextTransformFunctionName="process"
+```
+
+> Check the Dataflow console to verify that a new streaming job has started.
+
+5. In Cloud Shell, run the following command to start your Datastream stream:
+
+```bash
+gcloud datastream streams update oracle-cdc \
+--location=us-central1 --state=RUNNING --update-mask=state
+```
+6. Check the Datastream status
+
+```bash
+gcloud datastream streams list \
+--location=us-central1
+```
+
+> Validate that the state shows as `Running`. It may take a few seconds for the new state value to be reflected.
+
+> Check the Datastream console to validate the progress of the ORDERS table backfill.
