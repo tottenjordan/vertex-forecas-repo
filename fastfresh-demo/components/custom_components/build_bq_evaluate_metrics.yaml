@@ -1,0 +1,135 @@
+name: Get model evaluation metrics
+description: Get the average mean absolute error from the metrics
+inputs:
+- {name: metrics_in, type: Artifact, description: metrics artifact}
+outputs:
+- {name: metrics_out, type: HTML, description: metrics artifact}
+- {name: avg_mean_absolute_error, type: Float}
+implementation:
+  container:
+    image: python:3.8-slim
+    command:
+    - sh
+    - -c
+    - |2
+
+      if ! [ -x "$(command -v pip)" ]; then
+          python3 -m ensurepip || python3 -m ensurepip --user || apt-get install python3-pip
+      fi
+
+      PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet     --no-warn-script-location 'jinja2' 'pandas' 'matplotlib' 'kfp==1.8.19' && "$0" "$@"
+    - sh
+    - -ec
+    - |
+      program_path=$(mktemp -d)
+      printf "%s" "$0" > "$program_path/ephemeral_component.py"
+      python3 -m kfp.v2.components.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+    - |2+
+
+      import kfp
+      from kfp.v2 import dsl
+      from kfp.v2.dsl import *
+      from typing import *
+
+      def get_model_evaluation_metrics(
+          metrics_in: Input[Artifact], metrics_out: Output[HTML]
+      ) -> NamedTuple("Outputs", [("avg_mean_absolute_error", float)]):
+          """
+          Get the average mean absolute error from the metrics
+          Args:
+              metrics_in: metrics artifact
+              metrics_out: metrics artifact
+          Returns:
+              avg_mean_absolute_error: average mean absolute error
+          """
+
+          import pandas as pd
+
+          # Helpers
+          def prettyfier(styler):
+              """
+              Helper function to prettify the metrics table.
+              Args:
+                  styler: Styler object
+              Returns:
+                  Styler object
+              """
+              caption = {
+                  "selector": "caption",
+                  "props": [
+                      ("caption-side", "top"),
+                      ("font-size", "150%"),
+                      ("font-weight", "bold"),
+                      ("font-family", "arial"),
+                  ],
+              }
+              headers = {
+                  "selector": "th",
+                  "props": [("color", "black"), ("font-family", "arial")],
+              }
+              rows = {
+                  "selector": "td",
+                  "props": [("text-align", "center"), ("font-family", "arial")],
+              }
+              styler.set_table_styles([caption, headers, rows])
+              styler.set_caption("Forecasting accuracy report <br><br>")
+              styler.hide(axis="index")
+              styler.format(precision=2)
+              styler.background_gradient(cmap="Blues")
+              return styler
+
+          def get_column_names(header):
+              """
+              Helper function to get the column names from the metrics table.
+              Args:
+                  header: header
+              Returns:
+                  column_names: column names
+              """
+              header_clean = header.replace("_", " ")
+              header_abbrev = "".join([h[0].upper() for h in header_clean.split()])
+              header_prettied = f"{header_clean} ({header_abbrev})"
+              return header_prettied
+
+          # Extract rows and schema from metrics artifact
+          rows = metrics_in.metadata["rows"]
+          schema = metrics_in.metadata["schema"]
+
+          # Convert into a tabular format
+          columns = [metrics["name"] for metrics in schema["fields"] if "name" in metrics]
+          records = []
+          for row in rows:
+              records.append([dl["v"] for dl in row["f"]])
+          metrics = (
+              pd.DataFrame.from_records(records, columns=columns, index="product_name")
+              .astype(float)
+              .round(3)
+          )
+          metrics = metrics.reset_index()
+
+          # Create the HTML artifact for the metrics
+          pretty_columns = list(
+              map(
+                  lambda h: get_column_names(h)
+                  if h != columns[0]
+                  else h.replace("_", " ").capitalize(),
+                  columns,
+              )
+          )
+          pretty_metrics = metrics.copy()
+          pretty_metrics.columns = pretty_columns
+          html_metrics = pretty_metrics.style.pipe(prettyfier).to_html()
+          with open(metrics_out.path, "w") as f:
+              f.write(html_metrics)
+
+          # Create metrics dictionary for the model
+          avg_mean_absolute_error = round(float(metrics.mean_absolute_error.mean()), 0)
+          component_outputs = NamedTuple("Outputs", [("avg_mean_absolute_error", float)])
+
+          return component_outputs(avg_mean_absolute_error)
+
+    args:
+    - --executor_input
+    - {executorInput: null}
+    - --function_to_execute
+    - get_model_evaluation_metrics
