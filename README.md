@@ -46,7 +46,7 @@ pip install gcsfs==2023.1.0 --user
 ---
 ## simple pipeline
 
-![alt text](https://github.com/tottenjordan/vertex-forecas-repo/blob/main/repo-imgs/vf-simple-pipe-complete.png)
+![alt text](https://github.com/tottenjordan/vertex-forecas-repo/blob/main/00-repo-imgs/vf-simple-pipe-complete.png)
 
 ---
 #### TODO: saving for later
