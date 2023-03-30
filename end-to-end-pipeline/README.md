@@ -2,6 +2,15 @@
 
 > The pipeline notebook creates an end-to-end forecasting pipeline with conditional arguments to control which tasks are performed during each pipeline run
 
+#### summary
+* notebook creates pipeline components under `src`
+* prepares and preprocesses forecast train and eval datasets
+* train multiple Vertex Forecast models, each with different training configurations (e.g.,`optimization-objective == mape | rmse`)
+* conditional (optional) pipeline workflows:
+> * **(1) evaluate models as an ensemble:** combine (average) each trained model's forecasts on `TEST` set
+> * **(2) evaluate models individually:** run model evaluation workflow for each model, import eval metric artifacts to model object in Vertex AI Model Registry
+> * **(3) forecast models on `FORECAST PLAN`:** for each model, run batch prediction job for future dates (`FORECAST PLAN`); combines predictions in single table for downstream production tasks
+
 ![alt text](https://github.com/tottenjordan/vertex-forecas-repo/blob/main/repo-imgs/overall-pipeline-collapsed-conditonals.png)
 
 ## [1] Evaluate trained models as ensemble
