@@ -8,7 +8,7 @@ from kfp.v2.dsl import (Artifact, Dataset, Input, InputPath, Model, Output,
   base_image='python:3.9',
   packages_to_install=[
       'google-cloud-bigquery==2.34.4', 
-      'google-cloud-aiplatform==1.21.0'
+      'google-cloud-aiplatform==1.22.1'
   ],
 )
 def create_combined_preds_table(

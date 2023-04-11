@@ -17,7 +17,7 @@ create RDF pipeline workflows with Cloud Source Repositories, Cloud Shell, etc.
 pip install -U google-cloud-storage --user
 pip install kfp==1.8.19 --user
 pip install google_cloud_pipeline_components==1.0.41 --user
-pip install--U google-cloud-aiplatform==1.22.0 --user
+pip install--U google-cloud-aiplatform==1.23.0 --user
 pip install gcsfs==2023.1.0 --user
 ```
 
