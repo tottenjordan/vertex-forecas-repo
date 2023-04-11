@@ -17,7 +17,7 @@
 
 pipeline argument    |  tasks | Pipeline |
 |:-------------------------------:|:----------------------  |:------------------------- |
-`combine_preds_flag == True`     | <ul><li>creates combines prediction table</li><li>averages predictions and calculates ABS forecast error</li></ul>| ![alt text](https://github.com/tottenjordan/vertex-forecas-repo/blob/main/repo-imgs/overall-pipe-expanded-condition-1.png)   |
+`combine_preds_flag == True`     | <ul><li>creates combines prediction table</li><li>averages predictions and calculates ABS forecast error</li></ul>| ![alt text](https://github.com/tottenjordan/vertex-forecas-repo/blob/main/00-repo-imgs/overall-pipe-expanded-condition-1.png)   |
 
 ![alt text](https://github.com/tottenjordan/vertex-forecas-repo/blob/main/00-repo-imgs/combine-forecasts-on-test-set.png)
 
