@@ -65,18 +65,11 @@ def vertex_forecast_trainer(
     
     BQ_EVAL_DESTINATION_URI = f"bq://{project}:{eval_destination_dataset}:{EXPERIMENT_NAME}_{model_backbone}_eval"
     logging.info(f"BQ_EVAL_DESTINATION_URI: {BQ_EVAL_DESTINATION_URI}")
+    
     MANAGED_DATASET_RESOURCE_NAME = managed_dataset_resource_name.metadata["resourceName"]
     logging.info(f"MANAGED_DATASET_RESOURCE_NAME: {MANAGED_DATASET_RESOURCE_NAME}")
     
     # json array convert type
-    # column_specs:  List[str], #list,
-    # target_column: List[str], #str,
-    # time_column: List[str], #str,
-    # time_series_identifier_column: List[str], #str,
-    # time_series_attribute_columns: List[str], #str,
-    # unavailable_at_forecast_columns: List[str], #str,
-    # available_at_forecast_columns: List[str], #str,
-    
     logging.info(f"column_specs: {column_specs}")
     logging.info(f"target_column: {target_column}")
     logging.info(f"time_column: {time_column}")
@@ -84,9 +77,6 @@ def vertex_forecast_trainer(
     logging.info(f"time_series_attribute_columns: {time_series_attribute_columns}")
     logging.info(f"unavailable_at_forecast_columns: {unavailable_at_forecast_columns}")
     logging.info(f"available_at_forecast_columns: {available_at_forecast_columns}")
-    
-    # column_specs = json.loads(str(column_specs))
-    # logging.info(f"column_specs: {column_specs}")
     # ======================================
     # managed dataset reference
     # ======================================
@@ -187,7 +177,7 @@ def vertex_forecast_trainer(
     
     # create run name
     TIMESTAMP = datetime.now().strftime("%Y%m%d%H%M%S")
-    EXPERIMENT_RUN_NAME = f"run-{TIMESTAMP}"
+    EXPERIMENT_RUN_NAME = f"run-{TIMESTAMP}-{model_backbone}"
     
     # log params and metrics to dicts
     params = {}
