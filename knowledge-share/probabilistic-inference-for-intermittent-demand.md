@@ -2,7 +2,11 @@
 
 see the [Probabilistic Inference User Guide](https://docs.google.com/document/d/1kegOsor8j7HO2qttMKK6mtfl5GzoxDf8LhsXH8oXsyo/edit#heading=h.pkq5rspaeaz9) for more details
 
-### Dealing with Uncertainty
+## Intermittent demand
+
+![alt text](https://github.com/tottenjordan/vertex-forecas-repo/blob/main/knowledge-share/imgs/1_trouble_w_point_frcsts.png)
+
+## Dealing with Uncertainty
 
 **Retail sales are random by nature**; consider the following scenario:
 
