@@ -8,32 +8,14 @@ see the [Probabilistic Inference User Guide](https://docs.google.com/document/d/
 
 ## Dealing with Uncertainty
 
-**Retail sales are random by nature**; consider the following scenario:
+![alt text](https://github.com/tottenjordan/vertex-forecas-repo/blob/main/knowledge-share/imgs/2_use_probabilistic.png)
 
-* TODO
+## Vertex Forecast
 
-#### business value
-
-**a forecast of (1) a distribution of values vs (2) a single predicted value, has the following advantages:**
-
-* **Make better decisions:** Balance risks and costs, such as missed sales from understocking vs. the shipping + holding costs of overstocking.
-* **Provide better explanations:** Understand the range of possible outcomes, such as the likelihood of low sales vs. high sales if a product is trending rather than a single point prediction for median sales.
-* **Build more trust:** Low uncertainty for accurate predictions and high uncertainty when the model has insufficient information helps supply chain planners develop trust and act accordingly.
-
-#### Probabilistic Inference
-
-The premise of **Probabilistic Inference** is to learn a predictive distribution during training, and infer statistics of the distribution such as the **mean** and **quantiles** (including **median**) during prediction. Advantages over point predictions include:
-
-* **Quantifies Uncertainty:** Includes quantiles of the predictive distribution, which describes the range of possible outcomes, and expresses the confidence of the prediction.
-
-* **Models Sparsity:** Explicitly models the likelihood of zero sales (ex. stockout) and counts of events (ex. sales) as often occur in Retail demand forecasting, which may significantly improve the accuracy of predictions for products with low volume sales (sparsity).
-
-* **Learns Adaptively:** Places the greatest emphasis on learning where the model is the most  confident, avoiding overfitting to noise in the data. This also places an even emphasis across scales of the target, enabling the model to make accurate predictions for both slow and fast selling items. Together, this can significantly reduce bias in forecasts.
-
-* **Automates Distribution Fit:** Fits the predictive distribution using a number of candidate distributions which describe different types of processes, and weights according to the best fit for the use case, requiring no additional input from the user.
+![alt text](https://github.com/tottenjordan/vertex-forecas-repo/blob/main/knowledge-share/imgs/4_use_probabilistic.png)
 
 
-#### practical use
+## Practical use
 
 [1] `Target Service Level` 
 
