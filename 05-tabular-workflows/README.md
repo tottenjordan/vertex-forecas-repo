@@ -7,4 +7,4 @@
 
 ### TiDE pipeline
 
-<img src='imgs/tide-e2e-pipeline.png' width='800' height='545'>
+<img src='imgs/tide-e2e-pipeline.png'>
