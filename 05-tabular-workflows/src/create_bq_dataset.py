@@ -34,5 +34,5 @@ def create_bq_dataset(
     
     return (
         f'{new_bq_dataset}',
-        f'bq://{project}:{new_bq_dataset}',
+        f'bq://{project}.{new_bq_dataset}',
     )
