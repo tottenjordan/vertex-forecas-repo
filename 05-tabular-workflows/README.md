@@ -63,6 +63,8 @@ Vertex Tabular Workflows for Forecasting is the complete pipeline for forecastin
 
 > which one better?
 
+<img src='imgs/example_tide_pipe_ui_w_eval_v2.png'>
+
 <img src='imgs/example_tide_pipeline_ui_w_eval.png'>
 
 

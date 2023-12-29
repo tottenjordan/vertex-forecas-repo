@@ -1,25 +1,23 @@
-# Forecast with Vertex and BigQueryML on Google Cloud
+# Demand forecasting with Vertex Forecast and BQML ARIMA+
 
 > this repo provides code examples for various forecasting use-cases using [Vertex Forecast](https://cloud.google.com/vertex-ai/docs/tabular-data/tabular-workflows/forecasting-train) (deep learning AutoML), BigQuery ML's [ARIMA+](https://cloud.google.com/bigquery/docs/reference/standard-sql/bigqueryml-syntax-create-time-series) model, and [Vertex Tabular Workflows](https://cloud.google.com/vertex-ai/docs/tabular-data/tabular-workflows/forecasting) (pipeline orchestration)
 
-## *Note: Currently refactoring repo (12/29/2023)*
+### *Note: Currently refactoring repo (12/29/2023)*
 
-* `02-vf-sdk-example/`    - needs updated SDK vertsion
-* `03-bqml-sdk-examples/` - should be up-to-date
+* `02-vf-sdk-example/`    - needs updated SDK version
+* `03-bqml-sdk-examples/` - up-to-date
 * `04-pipeline-examples/` - needs updated versions for SDK and pipeline components
 * `05-tabular-workflows/` - **current focus:** consolidating examples; using BQ public dataset
 
-## Getting started...
+## Getting started
 
 > see the [`knowledge-share`](https://github.com/tottenjordan/vertex-forecas-repo/tree/main/knowledge-share) folder for discussion on select topics
 
-### (1) Create [Vertex Workbench](https://cloud.google.com/vertex-ai/docs/workbench/introduction) instance; clone repo
+#### (1) Create [Vertex Workbench](https://cloud.google.com/vertex-ai/docs/workbench/introduction) instance; clone repo
 
-* open a terminal and clone this repository to your instance:
+from an instance terminal window: `git clone https://github.com/tottenjordan/vertex-forecas-repo.git`
 
-`git clone https://github.com/tottenjordan/vertex-forecas-repo.git`
-
-### (2) Install packages
+#### (2) Install packages
 
 ```bash
 pip install -U google-cloud-storage --user
@@ -29,29 +27,20 @@ pip install--U google-cloud-aiplatform==1.23.0 --user
 pip install gcsfs==2023.1.0 --user
 ```
 
-### (3) follow data download instructions in `01-download-m5-data.ipynb` notebook
+#### (3) follow data download instructions in `01-download-m5-data.ipynb`
 
-* download  public dataset and land in BigQuery
+#### (4) follow data validation in `02-m5-dataprep.ipynb` and prepare dataset for forecasting
 
-### (4) follow data validation and prep in `02-m5-dataprep.ipynb` notebook
+#### (5) Run example code:
 
-* prepare dataset for demand forecasting
+* [02-vf-sdk-examples/](02-vf-sdk-examples/) - Vertex Forecast via SDK
+* [03-bqml-sdk-examples/](03-bqml-sdk-examples/) - BQML ARIMA+ and regression; submit SQL through BigQuery python client
+* [04-pipeline-examples/](04-pipeline-examples/) - (WIP) Orchestrate Vertex Forecast with Vertex Managed Pipelines
+* [05-tabular-workflows/](05-tabular-workflows/) - Train and eval Vertex Forecast models via Vertex AI Tabular Workflows (creates pipelines)
 
-### (5) Get familiar with Vertex Forecast capabilities
 
-> these notebooks build on each other, but do not need to be executed in order
-
-* `03-vertex-forecast-train-sdk.ipynb` - simple train and eval example using Vertex AI SDK
-* `04-vertex-forecast-experiments.ipynb` - see how to create parallel train jobs for experimentation
-* `05-vf-quantiles.ipynb` - understand probabilistic inference and quantile forecasts
-* `<place_holder>` - will demonstrate hierarchical aggregation (group and time)
-
-### (6) Learn how to orchestrate all these steps with Vertex Pipelines
-
-* `07-simple-pipeline-vf.ipynb` - simple pipeline for data prep, training, and evaluation
-* `end-to-end-pipeline/XX-vf-demand-pipeline-m5.ipynb` - handling complex workflows, ensemble multiple trained models, custom metrics and evaluation, forecast plan table
-
-### Vertex Forecast options
+## Vertex Forecast overview
+---
 
 **Model types**
 * Time series Dense Encoder (TiDE)
@@ -70,33 +59,10 @@ pip install gcsfs==2023.1.0 --user
 | WAPE       | `minimize-wape-mae`      | Minimize the combination of weighted absolute percentage error (WAPE) and mean-absolute-error (MAE). Useful when the actual values are low. |
 | QUANTILE   | `minimize-quantile-loss` | Minimize the scaled pinball loss of the defined quantiles to quantify uncertainty in estimates. Quantile predictions quantify the uncertainty of predictions. They measure the likelihood of a prediction being within a range. |
 
+**AutoML forecasting process**
 
-**TiDE on Vertex Tabluar Workflows**
-* [src](https://github.com/kubeflow/pipelines/blob/master/components/google-cloud/google_cloud_pipeline_components/preview/automl/forecasting/utils.py#L413)
+<img src='imgs/automl_process_highlevel.png'>
 
----
-## simple pipeline
+> TODO
 
-![alt text](https://github.com/tottenjordan/vertex-forecas-repo/blob/main/imgs/vf-simple-pipe-complete.png)
 
----
-#### TODO: saving for later
-```
-# from google_cloud_pipeline_components.types import artifact_types
-
-print("model_1_path:", model_1_path)
-model_aip_uri=model_1_path["uri"]
-
-print("model_1_path[49:]:", model_1_path[49:])
-model_aip_uri=model_1_path[49:]
-
-print("model_aip_uri_2:", model_aip_uri)
-model = artifact_types.VertexModel(uri='xxx')
-```
-
-```
-if batch_predict_bq_output_uri.startswith("bq://"):
-    batch_predict_bq_output_uri = batch_predict_bq_output_uri[5:]
-
-batch_predict_bq_output_uri.replace(":", ".")
-```
