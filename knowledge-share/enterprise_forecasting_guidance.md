@@ -1,4 +1,4 @@
-# Tips and best practices for planning and executing Enteerprise Forecast workloads
+# Tips and best practices for planning and executing Enterprise Forecast workloads
 
 ### Compared to traditional forecasting methods, deep learning-based techniques introduce several new modeling paradigms that often warrant examining and/or adjusting existing business processes
 
@@ -12,7 +12,7 @@
 
 *Said best practices are mainly accrued tribal knowledge, very little open source information or formalized definitions and concepts...*
 
-#### New Model Paradigm: **global vs local forecasting models**
+### New Model Paradigm: **global vs local forecasting models**
 
 <img src='imgs/global_vs_local_model_intro.png'>
 
