@@ -1,8 +1,6 @@
 # Forecasting with Vertex Tabular Workflows 
 
-> Use Vertex AI Tabular Workflows pipelines to train Vertex Forecast (AutoML) models using different configurations
-
-Learn more about [Tabular Workflow for Forecasting](https://cloud.google.com/vertex-ai/docs/tabular-data/tabular-workflows/forecasting).
+> Use Vertex AI Tabular Workflows pipelines to train Vertex Forecast (AutoML) models using different configurations. Learn more about [Tabular Workflow for Forecasting](https://cloud.google.com/vertex-ai/docs/tabular-data/tabular-workflows/forecasting).
 
 ## Why use Tabular Workflows for forecasting?
 
@@ -14,7 +12,7 @@ Vertex Tabular Workflows for Forecasting is the complete pipeline for forecastin
 * Model training
 * Model ensembling
 
-*Tabular Workflows for Forecasting has the following [advantages](https://cloud.google.com/vertex-ai/docs/tabular-data/tabular-workflows/forecasting#benefits):*
+*[advantages](https://cloud.google.com/vertex-ai/docs/tabular-data/tabular-workflows/forecasting#benefits):*
 
 1. Ability to **improve stability and lower training time** by limiting the search space of architecture types or skipping architecture search
 2. Ability to **improve training speed** by manually selecting the hardware used for training and architecture search; control the parallelism of the training process and the number of the final selected trials during the ensemble step
@@ -22,24 +20,16 @@ Vertex Tabular Workflows for Forecasting is the complete pipeline for forecastin
 5. **Supports large datasets** that are up to 1TB in size and have up to 200 columns
 6. All pipeline steps, their inputs and outputs, can be viewed in a **pipelines graph interface** (see `TiDE pipeline graph interface` below)
 
-## Vertex forecast recap
 
-**Model types**
-* Time series Dense Encoder (TiDE)
-* Temporal Fusion Transformer (TFT)
-* AutoML (L2L)
-* Seq2Seq+
+## Overview of pipeline components
 
-**AutoML training framework (default)**
+*Understanding the modeling pipeline for Tabular Workflow for Forecasting...*
+
+**Recall the AutoML training framework (default):**
 * An architecture is defined by a set of hyperparameters
 * Hyperparameters include the `model-type` and `model parameters`
 * Model types considered include `TiDE`, `TFT`, `L2L`, and `Seq2Seq+`
 * In an AutoML job, models are trained for each architecture considered 
-
-
-## Overview of pipeline components
-
-> *modeling pipeline for Tabular Workflow for Forecasting*
 
 <img src='imgs/tabular_wrkflow_forecast_overview.png'>
 
@@ -59,35 +49,39 @@ Vertex Tabular Workflows for Forecasting is the complete pipeline for forecastin
 
 > *sample pipeline for full AutoML training*
 
-<img src='imgs/tide-e2e-pipeline.png'>
-
-> which one better?
-
 <img src='imgs/example_tide_pipe_ui_w_eval_v2.png'>
-
-<img src='imgs/example_tide_pipeline_ui_w_eval.png'>
 
 
 ## Code Snippets
 
-> code examples highlighting flexibility of Tabular Workflows 
+*Code examples highlighting Tabular Workflow Forecasting capabilities...*
 
 
 ### Skip architecture search
+---
 
-The `automl-forecasting-stage-1-tuner` pipeline step is resonsible for performing model architecture search and tuning hyperparameters, i.e., it searches AutoML Forecasting architectures and selects the top trials
+The `automl-forecasting-stage-1-tuner` ([src](https://github.com/kubeflow/pipelines/blob/master/components/google-cloud/google_cloud_pipeline_components/preview/automl/forecasting/forecasting_stage_1_tuner.py) pipeline step is resonsible for performing model architecture search and tuning hyperparameters, i.e., it searches AutoML Forecasting architectures and selects the top trials. To skip architecture search, pass the hyperparameter tuning config from a previous pipeline run to the pipeline parameter `stage_1_tuning_result_artifact_uri`:
 
-* `stage_1_tuning_result_artifact_uri` - (Optional) URI of the hyperparameter tuning result from a previous pipeline run.
+```python
 
-> TODO
+(
+    template_path,
+    parameter_values,
+) = automl_forecasting_utils.get_time_series_dense_encoder_forecasting_pipeline_and_parameters(
+    ...
+    stage_1_tuning_result_artifact_uri=stage_1_tuning_result_artifact_uri,
+)
+```
 
 ### Skip hyperparameter tuning
+---
 
-The `automl-forecasting-stage-2-tuner`
+The `automl-forecasting-stage-2-tuner` ([src](https://github.com/kubeflow/pipelines/blob/master/components/google-cloud/google_cloud_pipeline_components/preview/automl/forecasting/forecasting_stage_2_tuner.py)) pipeline step tunes AutoML Forecasting models and selects top trials
 
-* Tunes AutoML Forecasting models and selects top trials.
+> TODO: code example
 
 ### Transformations
+---
 
 You can provide a dictionary mapping of auto- or type-resolutions to feature columns
 * Supported types are: auto, numeric, categorical, text, and timestamp.
@@ -122,8 +116,8 @@ def generate_transformation(
 transformations = generate_transformation(auto_column_names=features)
 ```
 
-
 ### Configure hardware
+---
 
 (Optional) Custom configuration of the machine types and the number of machines for various training stages:
 * `stage_1_tuner_worker_pool_specs_override: Optional[Dict[str, Any]]` 
@@ -145,6 +139,7 @@ worker_pool_specs_override = [
 ```
 
 ### Retrieve the uploaded Vertex model with a Vertex Pipeline job id
+---
 
 **Example format of pipeline_job_id:** `projects/540160140086/locations/us-central1/pipelineJobs/tide-forecasting-de601790-4a65-400d-96f8-a22c0b6756a1`
 
@@ -164,6 +159,7 @@ print(forecasting_mp_model)
 ```
 
 ### Upload with parent model for different model versions
+---
 
 ```python
 parent_model_resource_name = ""
@@ -225,6 +221,7 @@ job = aiplatform.PipelineJob(
 ```
 
 #### Integrate Tabular Workflow for Forecasting into your existing KFP pipeline
+---
 
 This is implemented using [the pipeline-as-component feature](https://www.kubeflow.org/docs/components/pipelines/v2/load-and-share-components/) of KFP.
 
