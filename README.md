@@ -1,9 +1,17 @@
-# vertex-forecas-repo
-create RDF pipeline workflows with Cloud Source Repositories, Cloud Shell, etc. 
+# Forecast with Vertex and BigQueryML on Google Cloud
 
-* see the [`knowledge-share`](https://github.com/tottenjordan/vertex-forecas-repo/tree/main/knowledge-share) folder for discussion on select topics
+> this repo provides code examples for various forecasting use-cases using [Vertex Forecast](https://cloud.google.com/vertex-ai/docs/tabular-data/tabular-workflows/forecasting-train) (deep learning AutoML), BigQuery ML's [ARIMA+](https://cloud.google.com/bigquery/docs/reference/standard-sql/bigqueryml-syntax-create-time-series) model, and [Vertex Tabular Workflows](https://cloud.google.com/vertex-ai/docs/tabular-data/tabular-workflows/forecasting) (pipeline orchestration)
 
-## getting started...
+## *Note: Currently refactoring repo (12/29/2023)*
+
+* `02-vf-sdk-example/`    - needs updated SDK vertsion
+* `03-bqml-sdk-examples/` - should be up-to-date
+* `04-pipeline-examples/` - needs updated versions for SDK and pipeline components
+* `05-tabular-workflows/` - **current focus:** consolidating examples; using BQ public dataset
+
+## Getting started...
+
+> see the [`knowledge-share`](https://github.com/tottenjordan/vertex-forecas-repo/tree/main/knowledge-share) folder for discussion on select topics
 
 ### (1) Create [Vertex Workbench](https://cloud.google.com/vertex-ai/docs/workbench/introduction) instance; clone repo
 
@@ -42,6 +50,29 @@ pip install gcsfs==2023.1.0 --user
 
 * `07-simple-pipeline-vf.ipynb` - simple pipeline for data prep, training, and evaluation
 * `end-to-end-pipeline/XX-vf-demand-pipeline-m5.ipynb` - handling complex workflows, ensemble multiple trained models, custom metrics and evaluation, forecast plan table
+
+### Vertex Forecast options
+
+**Model types**
+* Time series Dense Encoder (TiDE)
+* Temporal Fusion Transformer (TFT)
+* AutoML (L2L)
+* Seq2Seq+
+
+**Optimization Objectives** ([docs](https://cloud.google.com/vertex-ai/docs/tabular-data/forecasting-parameters#optimization-objectives))
+
+| Objective  | API                      | Use case |
+| :--------: | :------------:           | :------------------------------------- |
+| RMSE       | `minimize-rmse`          | Minimize root-mean-squared error (RMSE). Captures more extreme values accurately and is less biased when aggregating predictions.Default value. |
+| MAE        | `minimize-mae`           | Minimize mean-absolute error (MAE). Views extreme values as outliers with less impact on model. |
+| RMSLE      | `minimize-rmsle`         | Minimize root-mean-squared log error (RMSLE). Penalizes error on relative size rather than absolute value. Useful when both predicted and actual values can be large. |
+| RMSPE      | `minimize-rmspe`         | Minimize root-mean-squared percentage error (RMSPE). Captures a large range of values accurately. Similar to RMSE, but relative to target magnitude. Useful when the range of values is large. |
+| WAPE       | `minimize-wape-mae`      | Minimize the combination of weighted absolute percentage error (WAPE) and mean-absolute-error (MAE). Useful when the actual values are low. |
+| QUANTILE   | `minimize-quantile-loss` | Minimize the scaled pinball loss of the defined quantiles to quantify uncertainty in estimates. Quantile predictions quantify the uncertainty of predictions. They measure the likelihood of a prediction being within a range. |
+
+
+**TiDE on Vertex Tabluar Workflows**
+* [src](https://github.com/kubeflow/pipelines/blob/master/components/google-cloud/google_cloud_pipeline_components/preview/automl/forecasting/utils.py#L413)
 
 ---
 ## simple pipeline

@@ -1,17 +1,148 @@
 # Forecasting with Vertex Tabular Workflows 
 
-> TODO
+> Use Vertex AI Tabular Workflows pipelines to train Vertex Forecast (AutoML) models using different configurations
 
-### L2L pipeline
-<img src='imgs/l2l-full-pipe-run.png'>
+Learn more about [Tabular Workflow for Forecasting](https://cloud.google.com/vertex-ai/docs/tabular-data/tabular-workflows/forecasting).
 
-### TiDE pipeline
+## Why use Tabular Workflows for forecasting?
+
+Vertex Tabular Workflows for Forecasting is the complete pipeline for forecasting tasks. It is similar to the AutoML API, but allows you to choose what to control and what to automate. Instead of having controls for the whole pipeline, you have controls for every step in the pipeline, inlcuding:
+
+* Data splitting
+* Feature engineering
+* Architecture search
+* Model training
+* Model ensembling
+
+*Tabular Workflows for Forecasting has the following [advantages](https://cloud.google.com/vertex-ai/docs/tabular-data/tabular-workflows/forecasting#benefits):*
+
+1. Ability to **improve stability and lower training time** by limiting the search space of architecture types or skipping architecture search
+2. Ability to **improve training speed** by manually selecting the hardware used for training and architecture search; control the parallelism of the training process and the number of the final selected trials during the ensemble step
+4. For some model training methods, ability to **reduce model size and improved latency** by changing the ensemble size
+5. **Supports large datasets** that are up to 1TB in size and have up to 200 columns
+6. All pipeline steps, their inputs and outputs, can be viewed in a **pipelines graph interface** (see `TiDE pipeline graph interface` below)
+
+## Vertex forecast recap
+
+**Model types**
+* Time series Dense Encoder (TiDE)
+* Temporal Fusion Transformer (TFT)
+* AutoML (L2L)
+* Seq2Seq+
+
+**AutoML training framework (default)**
+* An architecture is defined by a set of hyperparameters
+* Hyperparameters include the `model-type` and `model parameters`
+* Model types considered include `TiDE`, `TFT`, `L2L`, and `Seq2Seq+`
+* In an AutoML job, models are trained for each architecture considered 
+
+
+## Overview of pipeline components
+
+> *modeling pipeline for Tabular Workflow for Forecasting*
+
+<img src='imgs/tabular_wrkflow_forecast_overview.png'>
+
+**Pipeline components:**
+1. **feature-transform-engine**: Perform feature engineering. See [Feature Transform Engine](https://cloud.google.com/vertex-ai/docs/tabular-data/tabular-workflows/feature-engineering) for details
+2. **split-materialized-data**: Split the materialized data into training, evaluation, and test sets
+3. **training-configurator-and-validator**: Validate training configuration and generate the training metadata
+4. **calculate-training-parameters**: Calculates expected runtime duration for `automl-forecasting-stage-1-tuner`  
+5. **get-hyperparameter-tuning-results** - *Optional:* If pipeline configured to **skip the architecture search**, loads the hyperparameter tuning results from a previous pipeline run
+6. Perform model architecture search and tune hyperparameters (**automl-forecasting-stage-1-tuner**) or use the hyperparameter tuning results from a previous pipeline run (**automl-forecasting-stage-2-tuner**)
+7. **get-prediction-image-uri**: Get correct prediction image URI based on the [model type](https://cloud.google.com/vertex-ai/docs/tabular-data/forecasting/train-model#training-methods)
+8. **automl-forecasting-ensemble**: Ensemble the best architectures to produce a final model [GitHub src](https://github.com/kubeflow/pipelines/blob/master/components/google-cloud/google_cloud_pipeline_components/preview/automl/forecasting/forecasting_ensemble.py)
+9. **model-upload** - Upload the model
+10. **should_run_model_evaluation** - *Optional:* Use the test set to calculate evaluation metrics
+
+## TiDE pipeline graph interface
+
+> *sample pipeline for full AutoML training*
+
 <img src='imgs/tide-e2e-pipeline.png'>
 
+> which one better?
 
-### Code Snippets
+<img src='imgs/example_tide_pipeline_ui_w_eval.png'>
 
-#### Retrieve the uploaded Vertex model with a Vertex Pipeline job id
+
+## Code Snippets
+
+> code examples highlighting flexibility of Tabular Workflows 
+
+
+### Skip architecture search
+
+The `automl-forecasting-stage-1-tuner` pipeline step is resonsible for performing model architecture search and tuning hyperparameters, i.e., it searches AutoML Forecasting architectures and selects the top trials
+
+* `stage_1_tuning_result_artifact_uri` - (Optional) URI of the hyperparameter tuning result from a previous pipeline run.
+
+> TODO
+
+### Skip hyperparameter tuning
+
+The `automl-forecasting-stage-2-tuner`
+
+* Tunes AutoML Forecasting models and selects top trials.
+
+### Transformations
+
+You can provide a dictionary mapping of auto- or type-resolutions to feature columns
+* Supported types are: auto, numeric, categorical, text, and timestamp.
+* pipeline parameter: `transformations: Dict[str, List[str]]`
+
+```python
+def generate_transformation(
+      auto_column_names: Optional[List[str]]=None,
+      numeric_column_names: Optional[List[str]]=None,
+      categorical_column_names: Optional[List[str]]=None,
+      text_column_names: Optional[List[str]]=None,
+      timestamp_column_names: Optional[List[str]]=None,
+    ) -> List[Dict[str, Any]]:
+    if auto_column_names is None:
+      auto_column_names = []
+    if numeric_column_names is None:
+      numeric_column_names = []
+    if categorical_column_names is None:
+      categorical_column_names = []
+    if text_column_names is None:
+      text_column_names = []
+    if timestamp_column_names is None:
+      timestamp_column_names = []
+    return {
+        "auto": auto_column_names,
+        "numeric": numeric_column_names,
+        "categorical": categorical_column_names,
+        "text": text_column_names,
+        "timestamp": timestamp_column_names,
+    }
+
+transformations = generate_transformation(auto_column_names=features)
+```
+
+
+### Configure hardware
+
+(Optional) Custom configuration of the machine types and the number of machines for various training stages:
+* `stage_1_tuner_worker_pool_specs_override: Optional[Dict[str, Any]]` 
+* `stage_2_trainer_worker_pool_specs_override: Optional[Dict[str, Any]]`
+
+See GitHub [src](https://github.com/kubeflow/pipelines/blob/master/components/google-cloud/google_cloud_pipeline_components/preview/automl/forecasting/utils.py#L460)
+
+```python
+worker_pool_specs_override = [
+  {"machine_spec": {"machine_type": "n1-standard-8"}}, # override for TF chief node
+  {},  # override for TF worker node, since it's not used, leave it empty
+  {},  # override for TF ps node, since it's not used, leave it empty
+  {
+    "machine_spec": {
+        "machine_type": "n1-standard-4" # override for TF evaluator node
+    }
+  }
+]
+```
+
+### Retrieve the uploaded Vertex model with a Vertex Pipeline job id
 
 **Example format of pipeline_job_id:** `projects/540160140086/locations/us-central1/pipelineJobs/tide-forecasting-de601790-4a65-400d-96f8-a22c0b6756a1`
 
@@ -30,7 +161,7 @@ forecasting_mp_model = aiplatform.Model(forecasting_mp_model_artifact.metadata['
 print(forecasting_mp_model)
 ```
 
-#### Upload with parent model for different model versions
+### Upload with parent model for different model versions
 
 ```python
 parent_model_resource_name = ""
