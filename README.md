@@ -40,13 +40,49 @@ pip install gcsfs==2023.1.0 --user
 
 
 ## Vertex Forecast overview
----
+
+#### Why use deep learning models for forecasting?
+* Creates one “global” model for many time series
+* Learns patterns across time series
+
+*Can use a large number of drivers across three distinct types of demand influencing factors:*
+1. Features that are not time-dependent (e.g., rich metadata such as product attributes, location attributes, etc.)
+2. Factors only know up to prediction time (e.g., historical values for inventory, weather, etc.)
+3. Factors known in the future  (e.g., planned promotions/events, holidays)
+
+<img src='imgs/complex_covariates.png'>
+
+*Can model complex scenarios*
+* Cold start / new items
+* Short product life cycles
+* Burstiness, sparsity
+* Unstructured data such as text descriptions
+* Feature driven time series
+
 
 **Model types**
 * Time series Dense Encoder (TiDE)
 * Temporal Fusion Transformer (TFT)
 * AutoML (L2L)
 * Seq2Seq+
+
+**Model architecture spotlight: TiDE*
+* A new (2023) Google Research model for time series forecasting using multi-layer perceptron architecture.
+* Compared to state of art transformer models TiDE has a simpler architecture and same or better accuracy.
+* main benefit == efficiency:
+  * Massive training throughput improvement: 10x to 30x (especially on longer horizons)
+  * Massive prediction throughput improvement: 3x to 10x
+  
+Find more details and the whitepaper in the research blog post: [Recent advances in deep long-horizon forecasting](https://ai.googleblog.com/2023/04/recent-advances-in-deep-long-horizon.html)
+
+**AutoML forecasting process**
+
+<img src='imgs/automl_process_highlevel.png'>
+
+* Neural architecture search (NAS) begins with multiple model types
+* With these model types and state-of-the-art layers/techniques (e.g., `self-attention`, `Deep and cross layers`, `Bi-directional LSTM`, `Skip connections`, etc.), VF builds several model architectures of various complexity to compete against each other
+* Candidate models are evaluated over multiple trials, where higher performing candidates are promoted to subsequent trials, and less performant candidates are retired
+* The highest performing models are trained in a k-fold cross validation, ultimately so that a diverse set of models are produced for the ensembling
 
 **Optimization Objectives** ([docs](https://cloud.google.com/vertex-ai/docs/tabular-data/forecasting-parameters#optimization-objectives))
 
@@ -58,11 +94,5 @@ pip install gcsfs==2023.1.0 --user
 | RMSPE      | `minimize-rmspe`         | Minimize root-mean-squared percentage error (RMSPE). Captures a large range of values accurately. Similar to RMSE, but relative to target magnitude. Useful when the range of values is large. |
 | WAPE       | `minimize-wape-mae`      | Minimize the combination of weighted absolute percentage error (WAPE) and mean-absolute-error (MAE). Useful when the actual values are low. |
 | QUANTILE   | `minimize-quantile-loss` | Minimize the scaled pinball loss of the defined quantiles to quantify uncertainty in estimates. Quantile predictions quantify the uncertainty of predictions. They measure the likelihood of a prediction being within a range. |
-
-**AutoML forecasting process**
-
-<img src='imgs/automl_process_highlevel.png'>
-
-> TODO
 
 

@@ -60,7 +60,7 @@ Vertex Tabular Workflows for Forecasting is the complete pipeline for forecastin
 ### Skip architecture search
 ---
 
-The `automl-forecasting-stage-1-tuner` ([src](https://github.com/kubeflow/pipelines/blob/master/components/google-cloud/google_cloud_pipeline_components/preview/automl/forecasting/forecasting_stage_1_tuner.py) pipeline step is resonsible for performing model architecture search and tuning hyperparameters, i.e., it searches AutoML Forecasting architectures and selects the top trials. To skip architecture search, pass the hyperparameter tuning config from a previous pipeline run to the pipeline parameter `stage_1_tuning_result_artifact_uri`:
+The `automl-forecasting-stage-1-tuner` ([src](https://github.com/kubeflow/pipelines/blob/master/components/google-cloud/google_cloud_pipeline_components/preview/automl/forecasting/forecasting_stage_1_tuner.py)) pipeline step is resonsible for performing model architecture search and tuning hyperparameters. To skip architecture search, pass the hyperparameter tuning config from a previous pipeline run to the pipeline parameter `stage_1_tuning_result_artifact_uri`:
 
 ```python
 
