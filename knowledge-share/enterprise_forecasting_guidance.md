@@ -1,5 +1,7 @@
 # Tips and best practices for planning and executing Enteerprise Forecast workloads
 
+> TODO
+
 ## (1) Forecasting projects are not about using a tool but rather about using your domain knowledge and a tool to make business decisions
 
 > TODO
