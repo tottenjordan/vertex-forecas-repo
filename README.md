@@ -45,19 +45,21 @@ pip install gcsfs==2023.1.0 --user
 * Creates one “global” model for many time series
 * Learns patterns across time series
 
-*Can use a large number of drivers across three distinct types of demand influencing factors:*
+*Better model complex scenarios*
+* Cold start / new items
+* Short product life cycles
+* Burstiness, sparsity
+* Unstructured data such as text descriptions
+* Feature driven time series
+
+*Handle a large number of drivers across three distinct types of demand influencing factors:*
 1. Features that are not time-dependent (e.g., rich metadata such as product attributes, location attributes, etc.)
 2. Factors only know up to prediction time (e.g., historical values for inventory, weather, etc.)
 3. Factors known in the future  (e.g., planned promotions/events, holidays)
 
 <img src='imgs/complex_covariates.png'>
 
-*Can model complex scenarios*
-* Cold start / new items
-* Short product life cycles
-* Burstiness, sparsity
-* Unstructured data such as text descriptions
-* Feature driven time series
+For more on this concept, see [intuiton-behind-past-only-covariates](knowledge-share/intuiton-behind-past-only-covariates.md) in the `knowledge-share` folder
 
 
 **Model types**
