@@ -1,6 +1,22 @@
 # Tips and best practices for planning and executing Enteerprise Forecast workloads
 
-> TODO
+### Compared to traditional forecasting methods, deep learning-based techniques introduce several new modeling paradigms that often warrant examining and/or adjusting existing business processes
+
+<img src='imgs/new_modeling_paradigms.png'>
+
+**Problem statements**
+* (1) Current established best practices for managing demand forecasting models at scale often implicitly assume that models are local forecasting models (LFM) 
+* (2) Current production demand planning pipelines and processes aren't designed to handle high cardinality complex covariate sets.
+
+**Major confounder:** 
+
+*Said best practices are mainly accrued tribal knowledge, very little open source information or formalized definitions and concepts...*
+
+#### New Model Paradigm: **global vs local forecasting models**
+
+<img src='imgs/global_vs_local_model_intro.png'>
+
+<img src='imgs/global_local_pros_cons.png'>
 
 ## (1) Forecasting projects are not about using a tool but rather about using your domain knowledge and a tool to make business decisions
 
@@ -39,6 +55,21 @@ See this paper, for more on this topic: [categorization of demand patterns](http
 * All product hierarchy attributes (e.g., item, category, and division descriptions, etc.)
 * A few broad location attributes (e.g., urban vs rural, pop. density, floor plan rather than ZIP, name, etc.)
 * Sales (target), inventory (quantity or OOS flag)
+
+**Take advantage of text tokenization:**
+* Clean attribute data of special characters (e.g., regex replace)
+* Sparse features will do more harm than good (e.g., 3% of time series having `attribute_47`)
+* Concatenate product or other hierarchical descriptions together
+
+<img src='imgs/text_token_feat_eng.png'>
+
+* Considers the interaction of hierarchy all at once
+* Reduces need for skip connection between hierarchy levels
+
+**Aggregate features help but caution:**
+* Too many numeric features may prevent model from converging well
+* When averaging, sums, and lags, ensure they have logic behind them (e.g., creating a 1 year lag because seasonality is strong)
+* Do feature engineering after creating train/test/validation splits
 
 ## (7) Use unavailable-at-forecast covariates to teach the model about the past
 
