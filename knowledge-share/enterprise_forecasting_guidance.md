@@ -40,7 +40,7 @@ Ideally, a high quality evaluation metric should meet the following requirements
 Usually one metric alone is not enough to evaluate forecast accuracy
 * Multiple metrics are required
 * Metrics must be scaled metrics (plain RMSE will not do. You must scale it or normalize it to compare against multiple datasets)
-* Metrics must be analyzed by sub segments (a single global metric for the entire company is not a valid metric!)
+* Metrics must be analyzed by sub segments. A single global metric for the entire company is not a valid metric --> segment metrics by various categories in your business to understand how forecasts are performing
 
 <img src='imgs/metric_table_compare.png'>
 
@@ -58,6 +58,8 @@ Usually one metric alone is not enough to evaluate forecast accuracy
 ## (3) Allocate more time than usual for EDA and insights
 * Since forecasting is all about business, you must plan to spend more time than usual (40% instead of 20% of project time) in EDA and deriving insights about the customers’ data. 
 * Your insights about their data will likely lead to better features, so your time spent will lead to better feature engineering in preparation for models.
+
+> TODO
 
 ## (4) Perform EDA; adjust historical sales to (better) reflect true demand instead of observed demand
 * Spend time understanding your data (e.g. tables and columns); then create hypotheses and validate them with the data. Every plot you make should inform how you model later.
@@ -115,4 +117,42 @@ If you don’t have variables available at inference time, don’t panic. These 
 * Future inventory
 
 <img src='imgs/unavailable_at_forecast_covariates.png'>
+
+## (8) Use multiple test datasets to determine final metric(s) that will determine model’s future
+
+<img src='imgs/eval_multiple_test_slices.png'>
+
+* Don’t evaluate model on a single fixed “golden” dataset
+* Instead evaluate model on multiple time slices
+* More likely to find a better representation of model’s actual forecast accuracy in production
+
+<img src='imgs/sliding_window.png'>
+
+Also, **evaluate model on a sliding window**
+
+<img src='imgs/sliding_window_detail.png'>
+
+
+## (9) Pinpoint focus on fewer areas
+
+<img src='imgs/pinpoint_focus_on_errors.png'>
+
+## (10) Learn how lags work: they can have a multiplier effect on your project schedule/plan
+
+<img src='imgs/lags_eval.png'>
+
+## (11) Perform downsampling when data is too large to fit into Vertex model
+
+<img src='imgs/sample_model_results_summary.png'>
+
+## (12) Use probabilistic inference to improve forecasts
+
+*The premise of Probabilistic Inference is to learn a predictive distribution during training, and infer statistics of the distribution such as the mean and quantiles (including median) during prediction.*
+
+* Provide quantification of uncertainty and efficient tradeoff between metrics using state of the art techniques
+* 90:10 and 94:6 are forecasts using a ratio of  (90%*mean prediction + 10%*median prediction)
+
+See [probabilistic-inference-for-intermittent-demand.md](./probabilistic-inference-for-intermittent-demand.md) for more on this topic
+
+
 
