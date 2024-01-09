@@ -1,4 +1,3 @@
-
 import kfp
 from typing import NamedTuple
 from kfp.dsl import (
@@ -9,14 +8,12 @@ from kfp.dsl import (
     component, 
     Metrics
 )
-
 @component(
-  base_image='python:3.9',
+  base_image='python:3.10',
   packages_to_install=['google-cloud-bigquery==3.14.1'],
 )
 def create_bq_dataset(
     project: str,
-    # vertex_dataset: str,
     new_bq_dataset: str,
     bq_location: str
 ) -> NamedTuple('Outputs', [
@@ -26,7 +23,7 @@ def create_bq_dataset(
     
     from google.cloud import bigquery
 
-    bq_client = bigquery.Client(project=project, location='US') # bq_location)
+    bq_client = bigquery.Client(project=project, location=bq_location) # bq_location)
     (
       bq_client.query(f'CREATE SCHEMA IF NOT EXISTS `{project}.{new_bq_dataset}`')
       .result()
